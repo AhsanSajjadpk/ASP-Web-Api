@@ -120,7 +120,28 @@ namespace WebApiLearning.Controllers
             return Ok();
         }
 
+[HttpDelete("delete-multiple")]
+public async Task<IActionResult> DeleteMultipleStudents([FromBody] List<int> ids)
+{
+    if (ids == null || !ids.Any())
+        return BadRequest("No student IDs provided.");
+
+    var students = await context.Students
+                                .Where(s => ids.Contains(s.StudentId))
+                                .ToListAsync();
+
+    if (!students.Any())
+        return NotFound("No students found for the provided IDs.");
+
+    context.Students.RemoveRange(students);
+    await context.SaveChangesAsync();
+
+    return Ok(new { message = "Students deleted successfully", deletedCount = students.Count });
+}
+
+
     }
 }
  
+
 
